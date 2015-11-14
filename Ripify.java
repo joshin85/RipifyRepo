@@ -68,11 +68,17 @@ public class Ripify {
 		
 		String temp[] = loc.split("\\\\");
 		//int i = t.length;
+	
 		String e = temp[0];
-		for(int i = 1; i < temp.length - 1; i++){
-			e = e + "\\"+temp[i];
+		if(temp.length > 1){
+			for(int i = 1; i < temp.length - 1; i++){
+				e = e + "\\"+temp[i];
+			}
+			Directory = e + "\\";
+		} else {
+			Directory = "";
 		}
-		Directory = e;
+		
 	System.out.println(e);
 	   Thread one = new Thread() {
 		    public void run() {
@@ -128,7 +134,7 @@ public class Ripify {
 							}
 						}
 						String downloaded =" Not Yet Downloaded\n";
-						File folder = new File(Directory + "\\Songs");
+						File folder = new File(Directory + "Songs");
 			
 						File[] listOfFiles = folder.listFiles();
 					    String titlee = (String) html.subSequence(start, end - 11);
@@ -174,6 +180,8 @@ public class Ripify {
 								  songName[0] = songName[0].substring(0, i - 1);
 							  }
 						  }
+						  songName[0] = songName[0].replaceAll("[^\\x00-\\x7F]", "").replaceAll("\\s+", " ");;
+						  
 				       list = list + "\n"+ title;
 						label.setText(list);
 						frame.revalidate(); 
@@ -198,9 +206,8 @@ public class Ripify {
 						  String  videoLength="";  
 						  int indexLoc = 1;
 						  while(notfound && indexLoc< times.length){
-						 
-						  videoLength="";
-						    int charLoc = 0;
+						     videoLength="";
+						     int charLoc = 0;
 							 char tVal= times[indexLoc].charAt(charLoc);
 							 while(tVal != '<'){
 							 videoLength = videoLength.concat(String.valueOf(tVal));
@@ -211,13 +218,11 @@ public class Ripify {
 							 videoLength = videoLength.replace(":","");
 							 if(Integer.valueOf(videoLength) < 2000){
 								 notfound = false;
-							
 							 } else{
 							 System.out.println("VIDEO LENGTH : " + videoLength);
 							 indexLoc++;
 							 }
 						    }
-					
 						  	String htmlf = times[indexLoc];
 							for(int i = 0; i < htmlf.length(); i++){
 								if(record){
@@ -234,10 +239,9 @@ public class Ripify {
 											  if(htmlf.charAt(i + 4) == 'c'){
 													if(htmlf.charAt(i + 5) == 'h'){
 														if(htmlf.charAt(i + 6) == '?'){
-															  start = i;
+															start = i;
 															i = i + 7;
-															
-															  record = true;
+															record = true;
 														}
 													}
 												}	  
@@ -248,19 +252,17 @@ public class Ripify {
 								
 								}
 							}
-					
 							String vidURL = (String) htmlf.subSequence(start,end);
-						
 							final String videoURL = "https://www.youtube.com" + vidURL;
-											executor.execute(new Runnable() {
+							executor.execute(new Runnable() {
 							    public void run() {
-							    		imgDownload(thtml, Directory, songName[0] );		
+							    	System.out.println(songName[0]);
+							    	imgDownload(thtml, "songs", songName[0]);		
 							    	Runtime rt = Runtime.getRuntime();
-							        try {			
-System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + ".%(ext)s\" \""+ videoURL +  "\" --extract-audio --add-metadata");
-								Process proc =rt.exec("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + ".%(ext)s\" "+ videoURL +  " --extract-audio --add-metadata");
-						      proc.waitFor();
-                        
+							        try {		
+				        				 System.out.println("youtube-dl -o \"" + Directory + "Songs\\"+ songName[0] + ".m4a\" \""+ videoURL +  "\" --extract-audio --add-metadata");
+										 Process proc =rt.exec("youtube-dl -o \"" + Directory + "Songs\\"+ songName[0] + ".m4a\" "+ videoURL +  " --extract-audio --add-metadata");
+									     proc.waitFor();
 										 BufferedReader stdInput = new BufferedReader(new 
 									             InputStreamReader(proc.getInputStream()));
 
@@ -268,24 +270,25 @@ System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + "
 									             InputStreamReader(proc.getErrorStream()));
                                          
 									        // read the output from the command
-									        System.out.println("Here is the standard output of the command:\n");
+									     
 									        String s = null;
 									        while ((s = stdInput.readLine()) != null) {
 									           System.out.println(s);
 									        }
 
 									        // read any errors from the attempted command
-									        System.out.println("Here is the standard error of the command (if any):\n");
+							
 									        while ((s = stdError.readLine()) != null) {
 									            System.out.println(s);
 									        }
 									      //  proc = rt.exec("ffmpeg -i \""+ Directory + "\\Songs\\" +songName[0] + ".mp3\" -acodec libmp3lame -ab 128k \"" + Directory + "\\Songs\\" +songName[0] + ".mp3\"");
 									      //	proc.waitFor();
-									   System.out.println("atomicparsley \"" + Directory + "\\Songs\\" + songName[0] + ".m4a\" --artwork \"" + Directory + "\\" + songName[0]+".jpg\" --artist \"" + songName[1] + "\" --title \"" + songName[0] + "\" --album \"" + albumName + "\" --overWrite");
-									    	proc = rt.exec("atomicparsley \"" + Directory + "\\Songs\\" + songName[0] + ".m4a\" --artwork \"" + Directory + "\\" + songName[0]+".jpg\" --artist \"" + songName[1] + "\" --title \"" + songName[0] + "\" --album \"" + albumName.replaceAll("-", " ") + "\" --overWrite");
+									   System.out.println("atomicparsley \"" + Directory + "Songs\\" + songName[0] + ".m4a\" --artwork \"" + Directory + "Songs\\" + songName[0]+".jpg\" --artist \"" + songName[1] + "\" --title \"" + songName[0] + "\" --album \"" + albumName + "\" --overWrite");
+									    	proc = rt.exec("atomicparsley \"" + Directory + "Songs\\" + songName[0] + ".m4a\" --artwork \"" + Directory + "Songs\\" + songName[0]+".jpg\" --artist \"" + songName[1] + "\" --title \"" + songName[0] + "\" --album \"" + albumName.replaceAll("-", " ") + "\" --overWrite");
 											proc.waitFor();
 								        File file = new File(Directory + "\\" + songName[0] + ".jpg");
-								       // file.delete();
+								    
+								        file.delete();
 							        } catch (IOException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
@@ -330,14 +333,10 @@ System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + "
        JPanel tracking = new JPanel();
 	   scrollLabel.add(label, BorderLayout.NORTH);
 	   JScrollPane plable = new JScrollPane(scrollLabel);
-        
 	   plable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 	   plable.setViewportBorder(new LineBorder(new Color(0, 162, 232)));
-	   
 	   plable.setPreferredSize(new Dimension(200, 300));
-	   
        tracking.add(timeLeft);
-	   
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        Dimension d = new Dimension(500,500);
       frame.setPreferredSize(d);
@@ -364,33 +363,22 @@ System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + "
     }
    
    public static void imgDownload(String html, String dir, String name) {
-
+	   System.out.println("Downloading Image");
 		boolean record = false;
 		int end = 0; int start = 0;
 		boolean recUrl = false;
 		
 		for(int i = 0; i < html.length(); i++){
-			
-				//System.out.print(html.charAt(i));
 				if(recUrl){
 						if(html.charAt(i) == ')'){
-					
 							end = i;
 							 record = false;
 							 i = html.length();
 				}
 			} else if(record){
-				
-				
-									start = i;
-									
-		recUrl = true;
-				
-						
-						
+				start = i;				
+				recUrl = true;	
 					}
-				
-			
 			 else {
 			if(html.charAt(i) == 'u'){
 				if(html.charAt(i + 1) == 'r'){
@@ -398,33 +386,25 @@ System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + "
 						if(html.charAt(i + 3) == '('){
 						  if(html.charAt(i + 4) == '/'){
 								if(html.charAt(i + 5) == '/'){
-									
 										  i = i + 5;
 										  start = i;
 										  record = true;
-									
 								}
 							}	  
 						}  	  
 					}  
 				}
 			}
-			
 			}
 		}
 		String title = (String) html.subSequence(start, end);
 		System.out.println(start + " " + end  + " f " + title);
-		
 		String Imageurl;
-		 System.out.println("TITLE : " + title);
-	
+		System.out.println("TITLE : " + title);
 		URL url = null;
 		try {
 		 url = new URL("http://" + title);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block.
-			
-		
 			e.printStackTrace();
 		} 
 		try{
@@ -443,12 +423,8 @@ System.out.println("youtube-dl -o \"" + Directory + "\\Songs\\"+ songName[0] + "
 		 fos.write(response);
 		 fos.close();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block.
-			
-			
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
    }
